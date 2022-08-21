@@ -1,29 +1,30 @@
-// const {XummSdk} = require('xumm-sdk') //xumm sdk input
-// const env = require('dotenv');
-// env.config({path: './.env'})
+const {XummSdk} = require('xumm-sdk') //xumm sdk input
 
-// // accessing xumm account via xumm sdk
-// const sdk = new XummSdk(process.env.API_KEY, process.env.API_SECRET)
 
-// // simple async arrow func to req transaction
-// const main =  async () => {
-//     const request = {
-//         "TransactionType": "Payment",
-//         "Destination": 'rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn',
-//         "Amount": "1000000",
-//         "Memo": [{
-//             "Memo": {"MemoData": 'F09F94A520563686E69'}
-//         }]
-//     }
+//  accessing xumm account via xumm sdk
 
-//     const payload = await sdk.payload.create(request, true)
 
-//     console.log(payload)
-// }
-// main()// Stand-alone code sample for "trade in the decentralized exchange" tutorial:
+// simple async arrow func to req transaction
+const xummTransact =  async (apikey, secretKey, destination) => {
+    // const sdk = new XummSdk(apikey, secretKey)
+    const request = {
+        "TransactionType": "Payment",
+        "Destination": destination,
+        "Amount": "1000000",
+        "Memo": [{
+            "Memo": {"MemoData": 'F09F94A520563686E69'}
+        }]
+    }
+
+    // will assign a type if we convert to typescript
+    const payload = await sdk.payload.create(request, true)
+    console.log(payload)
+}
+
+// xummTransact('007fbac7-5bef-476d-b309-658605d70c71', '99cf1f85-725d-40b9-9962-532d42ac1f40', 'rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn' )// Stand-alone code sample for "trade in the decentralized exchange" tutorial:
+
 // https://xrpl.org/trade-in-the-decentralized-exchange.html
 
-// Dependencies for Node.js.
 // In browsers, use <script> tags as in the example demo.html.
 if (typeof module !== "undefined") {
     // Use var here because const/let are block-scoped to the if statement.
@@ -32,7 +33,7 @@ if (typeof module !== "undefined") {
   }
   
   // Connect ---------------------------------------------------------------------
-  async function main() {
+  async function xrplTransact() {
     const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233')
     console.log("Connecting to Testnet...")
     await client.connect()
@@ -41,17 +42,9 @@ if (typeof module !== "undefined") {
     console.log("Requesting address from the Testnet faucet...")
     const wallet = (await client.fundWallet()).wallet
     console.log(`Got address ${wallet.address}.`)
-    // To use existing credentials, you can load them from a seed value, for
-    // example using an environment variable as follows:
-    // const wallet = xrpl.Wallet.fromSeed(process.env['MY_SEED'])
-  
-    // Define the proposed trade. ------------------------------------------------
-    // Technically you don't need to specify the amounts (in the "value" field)
-    // to look up order books using book_offers, but for this tutorial we reuse
-    // these variables to construct the actual Offer later.
     const we_want = {
       currency: "TST",
-      issuer: "007fbac7-5bef-476d-b309-658605d70c71",
+      issuer: "rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd",
       value: "25"
     }
     const we_spend = {
@@ -59,10 +52,6 @@ if (typeof module !== "undefined") {
              // 25 TST * 10 XRP per TST * 15% financial exchange (FX) cost
       value: xrpl.xrpToDrops(25*10*1.15)
     }
-    // "Quality" is defined as TakerPays ÷ TakerGets. The lower the "quality"
-    // number, the better the proposed exchange rate is for the taker.
-    // The quality is rounded to a number of significant digits based on the
-    // issuer's TickSize value (or the lesser of the two for token-token trades.)
     const proposed_quality = BigNumber(we_spend.value) / BigNumber(we_want.value)
   
     // Look up Offers. -----------------------------------------------------------
@@ -75,14 +64,6 @@ if (typeof module !== "undefined") {
       "taker_pays": we_spend
     })
     console.log(JSON.stringify(orderbook_resp.result, null, 2))
-  
-    // Estimate whether a proposed Offer would execute immediately, and...
-    // If so, how much of it? (Partial execution is possible)
-    // If not, how much liquidity is above it? (How deep in the order book would
-    //    other Offers have to go before ours would get taken?)
-    // Note: These estimates can be thrown off by rounding if the token issuer
-    // uses a TickSize setting other than the default (15). In that case, you
-    // can increase the TakerGets amount of your final Offer to compensate.
   
     const offers = orderbook_resp.result.offers
     const want_amt = BigNumber(we_want.value)
@@ -116,15 +97,6 @@ if (typeof module !== "undefined") {
     }
   
     if (running_total == 0) {
-      // If part of the Offer was expected to cross, then the rest would be placed
-      // at the top of the order book. If none did, then there might be other
-      // Offers going the same direction as ours already on the books with an
-      // equal or better rate. This code counts how much liquidity is likely to be
-      // above ours.
-  
-      // Unlike above, this time we check for Offers going the same direction as
-      // ours, so TakerGets and TakerPays are reversed from the previous
-      // book_offers request.
       const orderbook2_resp = await client.request({
         "command": "book_offers",
         "taker": wallet.address,
@@ -165,11 +137,6 @@ if (typeof module !== "undefined") {
     }
   
     // Send OfferCreate transaction ----------------------------------------------
-  
-    // For this tutorial, we already know that TST is pegged to
-    // XRP at a rate of approximately 10:1 plus spread, so we use
-    // hard-coded TakerGets and TakerPays amounts.
-  
     const offer_1 = {
       "TransactionType": "OfferCreate",
       "Account": wallet.address,
@@ -191,7 +158,6 @@ if (typeof module !== "undefined") {
   
     // Check metadata ------------------------------------------------------------
     // In JavaScript, you can use getBalanceChanges() to help summarize all the
-    // balance changes caused by a transaction.
     const balance_changes = xrpl.getBalanceChanges(result.result.meta)
     console.log("Total balance changes:", JSON.stringify(balance_changes, null,2))
   
@@ -253,4 +219,4 @@ if (typeof module !== "undefined") {
     client.disconnect()
   } // End of main()
   
-  main()
+  xrplTransact()
