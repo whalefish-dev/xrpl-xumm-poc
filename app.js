@@ -1,27 +1,34 @@
 const {XummSdk} = require('xumm-sdk') //xumm sdk input
 
 
-//  accessing xumm account via xumm sdk
-
 
 // simple async arrow func to req transaction
-const xummTransact =  async (apikey, secretKey, destination) => {
-    // const sdk = new XummSdk(apikey, secretKey)
-    const request = {
-        "TransactionType": "Payment",
-        "Destination": destination,
-        "Amount": "1000000",
-        "Memo": [{
-            "Memo": {"MemoData": 'F09F94A520563686E69'}
-        }]
-    }
+const xummSdk = async (apiKey, apiSectet, destination) => {
 
-    // will assign a type if we convert to typescript
+    //  accessing xumm account via xumm sdk
+    const sdk = new XummSdk(apiKey, apiSectet)
+
+    const appInfo = await sdk.ping()
+    console.log(appInfo.application.name)
+  
+    const request = {
+      "TransactionType": "Payment",
+      "Destination": destination,
+      "Amount": "10000",
+      "Memos": [
+        {
+          "Memo": {
+            "MemoData": "F09F988E20596F7520726F636B21"
+          }
+        }
+      ]
+    }
+  
     const payload = await sdk.payload.create(request, true)
     console.log(payload)
-}
-
-// xummTransact('007fbac7-5bef-476d-b309-658605d70c71', '99cf1f85-725d-40b9-9962-532d42ac1f40', 'rf1BiGeXwwQoi8Z2ueFYTEXSwuJYfV2Jpn' )// Stand-alone code sample for "trade in the decentralized exchange" tutorial:
+  }
+  
+  xummSdk('007fbac7-5bef-476d-b309-658605d70c71', '0b193697-36eb-473d-a9f5-9d4e18938d0b', 'rwietsevLFg8XSmG3bEZzFein1g8RBqWDZ')// Stand-alone code sample for "trade in the decentralized exchange" tutorial:
 
 // https://xrpl.org/trade-in-the-decentralized-exchange.html
 
@@ -219,4 +226,4 @@ if (typeof module !== "undefined") {
     client.disconnect()
   } // End of main()
   
-  xrplTransact()
+//   xrplTransact()
