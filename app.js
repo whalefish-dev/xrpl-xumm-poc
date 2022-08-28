@@ -1,9 +1,9 @@
 const {XummSdk} = require('xumm-sdk') //xumm sdk input
-// const {Txdata, TxData}  = require('xrpl-txdata') 
-
+const env = require('dotenv');
+env.config({path: './.env'})
 
 // simple async arrow func to req transaction
-const xummSdk = async (apiKey, apiSectet, destination) => {
+const xummSdk = async (apiKey, apiSectet, destination, amount, userToken) => {
 
     //  accessing xumm account via xumm sdk
     const sdk = new XummSdk(apiKey, apiSectet)
@@ -12,9 +12,9 @@ const xummSdk = async (apiKey, apiSectet, destination) => {
         "txjson": {  
             "TransactionType": "Payment",  
             "Destination": destination, 
-            "Amount": "1000000"  
+            "Amount": amount, 
         },  
-        "user_token": "2641f74d-c155-4714-91f5-43c5224ffe38"  
+        "user_token": userToken  
       }  
 
 
@@ -37,9 +37,9 @@ const xummSdk = async (apiKey, apiSectet, destination) => {
 
   }
   
-  xummSdk('007fbac7-5bef-476d-b309-658605d70c71', '0b193697-36eb-473d-a9f5-9d4e18938d0b', 'rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd')// Stand-alone code sample for "trade in the decentralized exchange" tutorial:
+  // Stand-alone code for "trading in the decentralized exchange"
+  xummSdk(process.env.API_KEY, process.env.API_SECRET, process.env.DESTINATION, "1000000", process.env.USER_TOKEN)
 
-// https://xrpl.org/trade-in-the-decentralized-exchange.html
 
 // In browsers, use <script> tags as in the example demo.html.
 if (typeof module !== "undefined") {
