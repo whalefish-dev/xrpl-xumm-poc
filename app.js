@@ -1,5 +1,5 @@
 const {XummSdk} = require('xumm-sdk') //xumm sdk input
-
+// const {Txdata, TxData}  = require('xrpl-txdata') 
 
 
 // simple async arrow func to req transaction
@@ -8,27 +8,36 @@ const xummSdk = async (apiKey, apiSectet, destination) => {
     //  accessing xumm account via xumm sdk
     const sdk = new XummSdk(apiKey, apiSectet)
 
-    const appInfo = await sdk.ping()
-    console.log(appInfo.application.name)
-  
-    const request = {
-      "TransactionType": "Payment",
-      "Destination": destination,
-      "Amount": "10000",
-      "Memos": [
-        {
-          "Memo": {
-            "MemoData": "F09F988E20596F7520726F636B21"
-          }
-        }
-      ]
+    const request = {  
+        "txjson": {  
+            "TransactionType": "Payment",  
+            "Destination": destination, 
+            "Amount": "1000000"  
+        },  
+        "user_token": "2641f74d-c155-4714-91f5-43c5224ffe38"  
+      }  
+
+
+    const subscription = await sdk.payload.createAndSubscribe(request, event => {  
+        if(Object.keys(event.data).indexOf('signed') > -1){  
+            return event.data  
+        }  
+    })   
+    console.log('sign request URL',subscription.created.next.always)  
+    console.log('Pushed ',subscription.created.pushed ? 'Yes' : 'No')  
+
+    const resolveData = await subscription.resolved  
+    if(resolveData.signed == false){  
+        console.log('The request was rejected!')  
+        }else{  
+        console.log('The request was Signed!!')  
+        const result = await sdk.payload.get(resolveData.payload_uuidv4)  
+        console.log('User_token: ',result.application.issued_user_token)  
     }
-  
-    const payload = await sdk.payload.create(request, true)
-    console.log(payload)
+
   }
   
-  xummSdk('007fbac7-5bef-476d-b309-658605d70c71', '0b193697-36eb-473d-a9f5-9d4e18938d0b', 'rwietsevLFg8XSmG3bEZzFein1g8RBqWDZ')// Stand-alone code sample for "trade in the decentralized exchange" tutorial:
+  xummSdk('007fbac7-5bef-476d-b309-658605d70c71', '0b193697-36eb-473d-a9f5-9d4e18938d0b', 'rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd')// Stand-alone code sample for "trade in the decentralized exchange" tutorial:
 
 // https://xrpl.org/trade-in-the-decentralized-exchange.html
 
