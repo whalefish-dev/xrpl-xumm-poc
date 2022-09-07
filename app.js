@@ -1,238 +1,38 @@
+const express = require("express");
+const morgan = require("morgan");
 const {XummSdk} = require('xumm-sdk') //xumm sdk input
 const env = require('dotenv');
+const { RippleAPI } = require('ripple-lib').RippleAPI;
+
 env.config({path: './.env'})
 
-// simple async arrow func to req transaction
-const xummSdk = async (apiKey, apiSectet, destination, amount, userToken) => {
+// init express
+const app = express();
 
-    //  accessing xumm account via xumm sdk
-    const sdk = new XummSdk(apiKey, apiSectet)
-
-    const request = {  
-        "txjson": {  
-            "TransactionType": "Payment",  
-            "Destination": destination, 
-            "Amount": amount, 
-        },  
-        "user_token": userToken  
-      }  
+// body parser
+app.use(express.json());
 
 
-    const subscription = await sdk.payload.createAndSubscribe(request, event => {  
-        if(Object.keys(event.data).indexOf('signed') > -1){  
-            return event.data  
-        }  
-    })   
-    console.log('sign request URL',subscription.created.next.always)  
-    console.log('Pushed ',subscription.created.pushed ? 'Yes' : 'No')  
+// v1 routes input
+const xrp = require("./routes/v1/xrp.js");
 
-    const resolveData = await subscription.resolved  
-    if(resolveData.signed == false){  
-        console.log('The request was rejected!')  
-        }else{  
-        console.log('The request was Signed!!')  
-        const result = await sdk.payload.get(resolveData.payload_uuidv4)  
-        console.log('User_token: ',result.application.issued_user_token)  
-    }
-
+// dev logging middleware
+if (process.env.NODE_ENV === "development") {
+    app.use(morgan("dev"));
   }
-  
-  // Stand-alone code for "trading in the decentralized exchange"
-  xummSdk(process.env.API_KEY, process.env.API_SECRET, process.env.DESTINATION, "1000000", process.env.USER_TOKEN)
 
+// mount v1 routers
+app.use("/api/v1/xrp", xrp);
+ 
+// init port for server to run
+const PORT = process.env.PORT || 4000;
 
-// In browsers, use <script> tags as in the example demo.html.
-if (typeof module !== "undefined") {
-    // Use var here because const/let are block-scoped to the if statement.
-    var xrpl = require('xrpl')
-    var BigNumber = require('bignumber.js')
-  }
+// process server and listening message
+app.listen(
+    PORT,
+    console.log(
+      `Server is running in ${process.env.NODE_ENV} MODE on port ${PORT} `
+    )
+  );
   
-  // Connect ---------------------------------------------------------------------
-  async function xrplTransact() {
-    const client = new xrpl.Client('wss://s.altnet.rippletest.net:51233')
-    console.log("Connecting to Testnet...")
-    await client.connect()
-  
-    // Get credentials from the Testnet Faucet -----------------------------------
-    console.log("Requesting address from the Testnet faucet...")
-    const wallet = (await client.fundWallet()).wallet
-    console.log(`Got address ${wallet.address}.`)
-    const we_want = {
-      currency: "TST",
-      issuer: "rP9jPyP5kyvFRb6ZiRghAGw5u8SGAmU4bd",
-      value: "25"
-    }
-    const we_spend = {
-      currency: "XRP",
-             // 25 TST * 10 XRP per TST * 15% financial exchange (FX) cost
-      value: xrpl.xrpToDrops(25*10*1.15)
-    }
-    const proposed_quality = BigNumber(we_spend.value) / BigNumber(we_want.value)
-  
-    // Look up Offers. -----------------------------------------------------------
-    // To buy TST, look up Offers where "TakerGets" is TST:
-    const orderbook_resp = await client.request({
-      "command": "book_offers",
-      "taker": wallet.address,
-      "ledger_index": "current",
-      "taker_gets": we_want,
-      "taker_pays": we_spend
-    })
-    console.log(JSON.stringify(orderbook_resp.result, null, 2))
-  
-    const offers = orderbook_resp.result.offers
-    const want_amt = BigNumber(we_want.value)
-    let running_total = BigNumber(0)
-    if (!offers) {
-      console.log(`No Offers in the matching book.
-                   Offer probably won't execute immediately.`)
-    } else {
-      for (const o of offers) {
-        if (o.quality <= proposed_quality) {
-          console.log(`Matching Offer found, funded with ${o.owner_funds}
-              ${we_want.currency}`)
-          running_total = running_total.plus(BigNumber(o.owner_funds))
-          if (running_total >= want_amt) {
-            console.log("Full Offer will probably fill")
-            break
-          }
-        } else {
-          // Offers are in ascending quality order, so no others after this
-          // will match, either
-          console.log(`Remaining orders too expensive.`)
-          break
-        }
-      }
-      console.log(`Total matched:
-            ${Math.min(running_total, want_amt)} ${we_want.currency}`)
-      if (running_total > 0 && running_total < want_amt) {
-        console.log(`Remaining ${want_amt - running_total} ${we_want.currency}
-              would probably be placed on top of the order book.`)
-      }
-    }
-  
-    if (running_total == 0) {
-      const orderbook2_resp = await client.request({
-        "command": "book_offers",
-        "taker": wallet.address,
-        "ledger_index": "current",
-        "taker_gets": we_spend,
-        "taker_pays": we_want
-      })
-      console.log(JSON.stringify(orderbook2_resp.result, null, 2))
-  
-      // Since TakerGets/TakerPays are reversed, the quality is the inverse.
-      // You could also calculate this as 1/proposed_quality.
-      const offered_quality = BigNumber(we_want.value) / BigNumber(we_spend.value)
-  
-      const offers2 = orderbook2_resp.result.offers
-      let tally_currency = we_spend.currency
-      if (tally_currency == "XRP") { tally_currency = "drops of XRP" }
-      let running_total2 = 0
-      if (!offers2) {
-        console.log(`No similar Offers in the book. Ours would be the first.`)
-      } else {
-        for (const o of offers2) {
-          if (o.quality <= offered_quality) {
-            console.log(`Existing offer found, funded with
-                  ${o.owner_funds} ${tally_currency}`)
-            running_total2 = running_total2.plus(BigNumber(o.owner_funds))
-          } else {
-            console.log(`Remaining orders are below where ours would be placed.`)
-            break
-          }
-        }
-        console.log(`Our Offer would be placed below at least
-              ${running_total2} ${tally_currency}`)
-        if (running_total > 0 && running_total < want_amt) {
-          console.log(`Remaining ${want_amt - running_total} ${tally_currency}
-                will probably be placed on top of the order book.`)
-        }
-      }
-    }
-  
-    // Send OfferCreate transaction ----------------------------------------------
-    const offer_1 = {
-      "TransactionType": "OfferCreate",
-      "Account": wallet.address,
-      "TakerPays": we_want,
-      "TakerGets": we_spend.value // since it's XRP
-    }
-  
-    const prepared = await client.autofill(offer_1)
-    console.log("Prepared transaction:", JSON.stringify(prepared, null, 2))
-    const signed = wallet.sign(prepared)
-    console.log("Sending OfferCreate transaction...")
-    const result = await client.submitAndWait(signed.tx_blob)
-    if (result.result.meta.TransactionResult == "tesSUCCESS") {
-      console.log(`Transaction succeeded:
-            https://testnet.xrpl.org/transactions/${signed.hash}`)
-    } else {
-      throw `Error sending transaction: ${result}`
-    }
-  
-    // Check metadata ------------------------------------------------------------
-    // In JavaScript, you can use getBalanceChanges() to help summarize all the
-    const balance_changes = xrpl.getBalanceChanges(result.result.meta)
-    console.log("Total balance changes:", JSON.stringify(balance_changes, null,2))
-  
-    // Helper to convert an XRPL amount to a string for display
-    function amt_str(amt) {
-      if (typeof amt == "string") {
-        return `${xrpl.dropsToXrp(amt)} XRP`
-      } else {
-        return `${amt.value} ${amt.currency}.${amt.issuer}`
-      }
-    }
-  
-    let offers_affected = 0
-    for (const affnode of result.result.meta.AffectedNodes) {
-      if (affnode.hasOwnProperty("ModifiedNode")) {
-        if (affnode.ModifiedNode.LedgerEntryType == "Offer") {
-          // Usually a ModifiedNode of type Offer indicates a previous Offer that
-          // was partially consumed by this one.
-          offers_affected += 1
-        }
-      } else if (affnode.hasOwnProperty("DeletedNode")) {
-        if (affnode.DeletedNode.LedgerEntryType == "Offer") {
-          // The removed Offer may have been fully consumed, or it may have been
-          // found to be expired or unfunded.
-          offers_affected += 1
-        }
-      } else if (affnode.hasOwnProperty("CreatedNode")) {
-        if (affnode.CreatedNode.LedgerEntryType == "RippleState") {
-          console.log("Created a trust line.")
-        } else if (affnode.CreatedNode.LedgerEntryType == "Offer") {
-          const offer = affnode.CreatedNode.NewFields
-          console.log(`Created an Offer owned by ${offer.Account} with
-            TakerGets=${amt_str(offer.TakerGets)} and
-            TakerPays=${amt_str(offer.TakerPays)}.`)
-        }
-      }
-    }
-    console.log(`Modified or removed ${offers_affected} matching Offer(s)`)
-  
-    // Check balances ------------------------------------------------------------
-    console.log("Getting address balances as of validated ledger...")
-    const balances = await client.request({
-      command: "account_lines",
-      account: wallet.address,
-      ledger_index: "validated"
-      // You could also use ledger_index: "current" to get pending data
-    })
-    console.log(JSON.stringify(balances.result, null, 2))
-  
-    // Check Offers --------------------------------------------------------------
-    console.log(`Getting outstanding Offers from ${wallet.address} as of validated ledger...`)
-    const acct_offers = await client.request({
-      command: "account_offers",
-      account: wallet.address,
-      ledger_index: "validated"
-    })
-    console.log(JSON.stringify(acct_offers.result, null, 2))
-  
-    client.disconnect()
-  } // End of main()
-  
-//   xrplTransact()
+
