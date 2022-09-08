@@ -3,7 +3,8 @@ const morgan = require("morgan");
 const {XummSdk} = require('xumm-sdk') //xumm sdk input
 const env = require('dotenv');
 const { RippleAPI } = require('ripple-lib').RippleAPI;
-
+const cors = require("cors");
+const xss = require("xss-clean");
 env.config({path: './.env'})
 
 // init express
@@ -12,6 +13,11 @@ const app = express();
 // body parser
 app.use(express.json());
 
+// prevent cross site scriptin
+app.use(xss());
+
+// enable cors
+app.use(cors());
 
 // v1 routes input
 const xrp = require("./routes/v1/xrp.js");

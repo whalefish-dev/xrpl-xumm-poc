@@ -1,41 +1,41 @@
 const express = require("express");
-// In browsers, use <script> tags as in the example demo.html.
 if (typeof module !== "undefined") {
-    // Use var here because const/let are block-scoped to the if statement.
     var xrpl = require('xrpl')
     var BigNumber = require('bignumber.js')
   }
 
-
+//  post /api/v1/xrp/creatdexoffer/
 exports.test = async(req, res, next) =>  {
   console.log('testing' )
   res.status(201).json({
     success: true,
-    data: req.body,
+    data: 'hello for the browser',
   });
 }
+
+
 // @desc    create offer on the dex (xrp lerger)
 // @route   post /api/v1/xrp/creatdexoffer/
 // @access  Private(public for now)
 exports.createOffer = async (req, res, next) => { 
-    
+    const body = req.body;
     const client = new xrpl.Client('wss://xrplcluster.com')
     console.log("Connecting to server...")
     await client.connect()
   
     // Get credentials from the Testnet Faucet -----------------------------------
     console.log("Requesting address ...")
-    const wallet = xrpl.Wallet.fromSeed("shDYhv4ad2yt1Y12w5kLEv1bLirFm")
+    const wallet = xrpl.Wallet.fromSeed(body.secret)
     console.log(`Got address ${wallet.address}.`)
     const we_want = {
       currency: "BTC",
       issuer: wallet.address,
-      value: "0.0000016749"
+      value: body.weWant.value
     }
     const we_spend = {
       currency: "XRP",
              // 25 TST * 10 XRP per TST * 15% financial exchange (FX) cost
-      value: xrpl.xrpToDrops(25*2*1.15)
+      value: xrpl.xrpToDrops(body.weSpend.value)
     }
     const proposed_quality = BigNumber(we_spend.value) / BigNumber(we_want.value)
   
@@ -200,6 +200,9 @@ exports.createOffer = async (req, res, next) => {
       ledger_index: "validated"
     })
     console.log(JSON.stringify(acct_offers.result, null, 2))
-  
+    res.status(201).json({
+      success: true,
+      data: acct_offers.result,
+    });
     client.disconnect()
 }
