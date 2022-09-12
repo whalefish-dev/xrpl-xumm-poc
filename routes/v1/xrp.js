@@ -6,9 +6,10 @@ const {
 const router = express.Router();
 
 // initalize xrp routes
+// api/v1/xrp/createdexoffer 
 router.route("/createdexoffer").post(createOffer);
 
-// post route
+// for testing
 // api/v1/xrp/test 
 router.route("/test").post(test);
 

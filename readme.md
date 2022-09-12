@@ -24,3 +24,10 @@ localhost:4000/api/v1/xrp/createdexoffer     (create offer on xrpl lerger produc
                 "value": "value"
             }
         }
+
+
+1)get user token without cash transaction  -->
+# visit : localhost:4000/api/v1/xrp/gettoken
+# you will get a qrcode,
+# scan to sign request 
+# user token will be generated on the fly

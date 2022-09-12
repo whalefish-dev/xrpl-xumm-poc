@@ -21,6 +21,7 @@ app.use(cors());
 
 // v1 routes input
 const xrp = require("./routes/v1/xrp.js");
+const xumm = require("./routes/v1/xumm.js");
 
 // dev logging middleware
 if (process.env.NODE_ENV === "development") {
@@ -29,6 +30,7 @@ if (process.env.NODE_ENV === "development") {
 
 // mount v1 routers
 app.use("/api/v1/xrp", xrp);
+app.use("/api/v1/xumm", xumm);
  
 // init port for server to run
 const PORT = process.env.PORT || 4000;
