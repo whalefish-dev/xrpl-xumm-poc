@@ -1,4 +1,9 @@
 const express = require("express");
+const {XummSdk} = require('xumm-sdk') //xumm sdk input
+const env = require('dotenv');
+env.config({path: './.env'})
+
+
 if (typeof module !== "undefined") {
     var xrpl = require('xrpl')
     var BigNumber = require('bignumber.js')
@@ -199,9 +204,32 @@ exports.createOffer = async (req, res, next) => {
       account: wallet.address,
       ledger_index: "validated"
     })
+    // trigger xumm notification
+
+        //  accessing xumm account via xumm sdk
+        const sdk = new XummSdk(process.env.API_KEY, process.env.API_SECRET)
+
+        const request = {  
+            "txjson": {  
+                "TransactionType": "OfferCreate",  
+                // "Destination": destination, 
+                // "Amount": amount, 
+            },  
+            "user_token": "cf2e0003-eaf7-4bd1-af55-133a6f40db48"  
+            // "user_token": "2641f74d-c155-4714-91f5-43c5224ffe38"  
+          }  
+        const subscription = await sdk.payload.createAndSubscribe(request, event => {  
+            if(Object.keys(event.data).indexOf('signed') > -1){  
+                return event.data   
+            }  
+        })  
+        const resolveData = await subscription.resolved 
+
+
+    
     console.log(JSON.stringify(acct_offers.result, null, 2))
     res.status(201).json({
-      success: true,
+      success: true, 
       data: acct_offers.result,
     });
     client.disconnect()

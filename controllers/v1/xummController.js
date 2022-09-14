@@ -47,7 +47,7 @@ exports.sendXrp = async (apiKey, apiSectet, destination, amount, userToken) => {
 
 
 //  post /api/v1/xumm/getToken/
-exports.getUserToken = async () => {
+exports.getUserToken = async (req, res) => {
 
     //  accessing xumm account via xumm sdk
     const sdk = new XummSdk(process.env.API_KEY, process.env.API_SECRET)
@@ -83,8 +83,14 @@ exports.getUserToken = async () => {
         console.log('The request was Signed!!')  
         const result = await sdk.payload.get(resolveData.payload_uuidv4)  
         console.log('User_token: ',result.application.issued_user_token)  
+
+        res.status(201).json({
+            success: true,
+            'User_token: ': result.application.issued_user_token,
+          });
     }
 
+    
   }
   
 

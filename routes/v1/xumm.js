@@ -5,7 +5,7 @@ const {
 const router = express.Router();
 
 // initalize xrp routes
-// api/v1/xumm/gettoken 
+// localhost:4000/api/v1/xumm/gettoken 
 router.route("/gettoken").post(getUserToken);
 
 module.exports = router;
