@@ -5,15 +5,19 @@ transaction which it sends to XUMM for signing before sending on to the XRPL
 Decentralised exchange.
 """
 import logging
+import os
 import requests
+from dotenv import load_dotenv
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
 
 
 def get_user_token() -> str:
     """Returns user token."""
-    response = requests.post("http://localhost:4000/api/v1/xumm/getUserToken", {})
+    logging.info("Requesting user token")
+    response = requests.get("http://localhost:4000/api/v1/xumm/getUserToken")
     return response.json()["userToken"]
 
 
@@ -26,6 +30,7 @@ def send_offer(
     buy_value: float,
 ) -> bool:
     "Sends offer to XRP ledger Decentralised exchange."
+    logging.info("Sending offer to XRPL")
     response = requests.post(
         "http://localhost:4000/api/v1/xrp/createOffer",
         json={
@@ -41,23 +46,23 @@ def send_offer(
 if __name__ == "__main__":
     try:
         user_token = get_user_token()
-        logger.info("Retrieved user token")
+        logging.info("Retrieved user token")
     except Exception as e:
-        logger.error("Error encountered whilst getting user token.")
+        logging.error("Error encountered whilst getting user token.")
         raise e
     try:
         success = send_offer(
             user_token=user_token,
-            wallet_address="rN1qS7tsyA2168ApYG7QGsakwJ6JRyuoP",
+            wallet_address=os.environ["WALLET_ADDRESS"],
             buy_currency="USD",
             buy_value=0.3461,
             sell_currency="XRP",
             sell_value=1.
         )
         if success:
-            logger.info("Successfully sent transaction to the XRPL")
+            logging.info("Successfully sent transaction to the XRPL")
         else:
-            logger.error("Error in sending transaction to the XRPL")
+            logging.error("Error in sending transaction to the XRPL")
     except Exception as e:
-        logger.error("Error encountered whilst sending transaction.")
+        logging.error("Error encountered whilst sending transaction.")
         raise e

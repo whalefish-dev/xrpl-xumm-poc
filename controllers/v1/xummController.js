@@ -1,11 +1,11 @@
 const express = require("express");
-
+const open = require('open');
 
 const { XummSdk } = require('xumm-sdk')
 //  accessing xumm account via xumm sdk
 const sdk = new XummSdk(process.env.API_KEY, process.env.API_SECRET)
 
-//  post /api/v1/xumm/getUserToken
+//  get /api/v1/xumm/getUserToken
 exports.getUserToken = async (req, res) => {
   const request = {
     "options": {
@@ -24,6 +24,7 @@ exports.getUserToken = async (req, res) => {
   })
 
   console.log('Open this URL and scan the QR code: ', subscription.created.next.always)
+  await open(subscription.created.next.always)
 
   const resolveData = await subscription.resolved
   if (!resolveData.signed) {

@@ -6,6 +6,6 @@ const router = express.Router();
 
 // initalize xumm routes
 // localhost:4000/api/v1/xumm/getUserToken 
-router.route("/getUserToken").post(getUserToken);
+router.route("/getUserToken").get(getUserToken);
 
 module.exports = router;
