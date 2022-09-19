@@ -1,6 +1,6 @@
 {
-  "name": "zrx_swap",
-  "version": "1.0.0",
+  "name": "xrpl-xumm-poc",
+  "version": "0.1.0",
   "description": "",
   "main": "app.js",
   "scripts": {
@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "open": "^8.0.0",
     "axios": "^0.27.2",
     "bignumber.js": "^9.1.0",
     "cors": "^2.8.5",

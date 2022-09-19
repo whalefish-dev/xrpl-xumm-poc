@@ -6,8 +6,8 @@ const {
 const router = express.Router();
 
 // initalize xrp routes
-// api/v1/xrp/createdexoffer 
-router.route("/createdexoffer").post(createOffer);
+// api/v1/xrp/createOffer 
+router.route("/createOffer").post(createOffer);
 
 // for testing
 // api/v1/xrp/test 

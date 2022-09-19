@@ -1,11 +1,11 @@
 const express = require("express");
 const {
-  getUserToken
+getUserToken
 } = require("../../controllers/v1/xummController");
 const router = express.Router();
 
-// initalize xrp routes
-// localhost:4000/api/v1/xumm/gettoken 
-router.route("/gettoken").post(getUserToken);
+// initalize xumm routes
+// localhost:4000/api/v1/xumm/getUserToken 
+router.route("/getUserToken").get(getUserToken);
 
 module.exports = router;

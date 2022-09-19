@@ -1,8 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
-const {XummSdk} = require('xumm-sdk') //xumm sdk input
 const env = require('dotenv');
-const { RippleAPI } = require('ripple-lib').RippleAPI;
 const cors = require("cors");
 const xss = require("xss-clean");
 env.config({path: './.env'})
@@ -39,7 +37,7 @@ const PORT = process.env.PORT || 4000;
 app.listen(
     PORT,
     console.log(
-      `Server is running in ${process.env.NODE_ENV} MODE on port ${PORT} `
+      `Server is running in ${process.env.NODE_ENV} MODE on port ${PORT}`
     )
   );
   
