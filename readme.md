@@ -10,7 +10,7 @@ step 5) use postman to submit data to the below routes
 
 localhost:4000/api/v1/xrp/test     (for testing)
         whatever data you want to pass
-localhost:4000/api/v1/xrp/createdexoffer     (create offer on xrpl lerger production server)
+localhost:4000/api/v1/xrp/createOffer     (create offer on xrpl lerger production server)
         json data
 
         {
@@ -27,7 +27,7 @@ localhost:4000/api/v1/xrp/createdexoffer     (create offer on xrpl lerger produc
 
 
 1)get user token without cash transaction  -->
-# visit : localhost:4000/api/v1/xrp/gettoken
+# visit : localhost:4000/api/v1/xrp/getUserToken
 # you will get a qrcode,
 # scan to sign request 
 # user token will be generated on the fly
