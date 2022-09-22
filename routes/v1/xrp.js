@@ -11,7 +11,7 @@ router.route("/createOffer").post(createOffer);
 
 // for testing
 // api/v1/xrp/test 
-router.route("/test").post(test);
+router.route("/test").get(test);
 
 
 module.exports = router;
