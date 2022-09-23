@@ -1,3 +1,5 @@
 describe("XRP Endpoints", () => {
-// TODO: Add XRP tests here like the XUMM tests
+  it("should return a 201 and send transaction to ledger", async () => {
+    // TODO: Add test body here
+  });
 });
