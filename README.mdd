@@ -20,10 +20,10 @@ pip install -r requirements.txt
 
 First you need to create a `.env` file in the root directory with the following keys:
 
-* `NODE_ENV`: Used by the node server. If this is set to 'development', middleware logging will be done.
-* `API_KEY`: XUMM Developer Application API Key. Used by the node server to communicate with XUMM.
-* `API_SECRET`: XUMM Developer Application API Secret. Used by the node server to communicate with XUMM.
-* `WALLET_ADDRESS`: Used by the python code to know which wallet to transact under.
+- `NODE_ENV`: Used by the node server. If this is set to 'development', middleware logging will be done.
+- `API_KEY`: XUMM Developer Application API Key. Used by the node server to communicate with XUMM.
+- `API_SECRET`: XUMM Developer Application API Secret. Used by the node server to communicate with XUMM.
+- `WALLET_ADDRESS`: Used by the python code to know which wallet to transact under.
 
 Then, open two terminals. In the first terminal run:
 
