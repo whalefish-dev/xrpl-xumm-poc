@@ -1,0 +1,25 @@
+name: lint
+on:
+  pull_request:
+  push:
+    branches:
+      - dev
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: "16.x"
+
+      - name: Install dependencies
+        run: yarn install
+
+      - name: Run eslint
+        run: yarn lint --max-warnings=0
+
+      - name: Run prettier
+        run: yarn prettier --check
