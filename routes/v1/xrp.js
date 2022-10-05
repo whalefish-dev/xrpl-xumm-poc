@@ -1,17 +1,17 @@
+const bodyParser = require('body-parser');
 const express = require("express");
-const {
-  createOffer,
-  test
-} = require("../../controllers/v1/xrpController");
-const router = express.Router();
+const { createOffer, test } = require("../../controllers/v1/xrpController");
+const app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
 // initalize xrp routes
-// api/v1/xrp/createOffer 
-router.route("/createOffer").post(createOffer);
+// api/v1/xrp/createOffer
+app.route("/createOffer").post(createOffer);
 
 // for testing
-// api/v1/xrp/test 
-router.route("/test").post(test);
+// api/v1/xrp/test
+app.route("/test").get(test);
 
-
-module.exports = router;
+module.exports = app;
