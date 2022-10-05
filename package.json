@@ -5,7 +5,9 @@
   "main": "app.js",
   "scripts": {
     "dev": "nodemon app",
-    "test": "jest"
+    "test": "jest",
+    "lint": "eslint --fix .",
+    "prettier": "prettier --write ."
   },
   "keywords": [],
   "author": "",
