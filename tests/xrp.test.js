@@ -1,31 +1,46 @@
-const  app = require('../app');
+const app = require("../routes/v1/xrp");
 const request = require('supertest');
 
-jest.mock("open")
 jest.mock("xrpl", () => {
   return {
-    XrpTest: jest.fn().mockImplementation(() => {
+    Client: jest.fn().mockImplementation(() => {
+      return {
+        connect: jest.fn().mockResolvedValueOnce(),
+        disconnect: jest.fn().mockResolvedValueOnce(),
+        autofill: jest.fn().mockResolvedValueOnce({data: "data"}),
+      };
+    }),
+    xrpToDrops: jest.fn()
+  };
+});
+jest.mock("xumm-sdk", () => {
+  return {
+    XummSdk: jest.fn().mockImplementation(() => {
       return {
         payload: {
           createAndSubscribe: jest.fn().mockResolvedValueOnce({
-            created: { next: { always: "https://dummy_xrp_url.com" } },
-            resolved : jest.fn().mockResolvedValueOnce({transactionComplete: true, offerAmount: "SomeOfferAmount"})()
+            resolved : jest.fn().mockResolvedValueOnce({payload_uuidv4: "some_uuid"})()
           }),
-          get: jest.fn().mockResolvedValueOnce({application: {OfferCreated: true}}),
+          get: jest.fn().mockResolvedValueOnce({response: {dispatched_result: "tesSUCCESS"}}),
         },
       };
     }),
   };
 });
 
-
 describe("xrp Endpoints", () => {
-    it("should return a 201 and offer amount", async () => {
-      const res = await request(app).get("/createoffer");
-      expect(res.statusCode).toEqual(201);
-      expect(res.body).toHaveProperty("success");
-      expect(res.body).toHaveProperty("offerAmount");
-      expect(res.body.offerAmount).toEqual("dummyofferamount")
-    });
-    // TODO: Add a test for returning a 400 error
+  it("should return a 201 and success", async () => {
+    const res = await request(app)
+      .post("/createOffer")
+      .send({
+        "address": "dummy_allet_address",
+        "userToken": "dummy_user_token",
+        "weWant": {"currency": "USDX", "value": "123"},
+        "weSpend": {"currency": "OXLS", "value": "456"},
+      })
+      .set('Content-Type', 'application/json')
+      .set('Accept', 'application/json');
+    expect(res.statusCode).toEqual(201);
+    expect(res.body).toHaveProperty("success");
   });
+});

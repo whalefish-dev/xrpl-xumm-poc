@@ -1,5 +1,5 @@
 const { XummSdk } = require("xumm-sdk"); // xumm sdk input
-const xrpl = require("xrpl");
+const { Client, xrpToDrops } = require("xrpl");
 const env = require("dotenv");
 env.config({ path: "./.env" });
 
@@ -17,7 +17,7 @@ exports.test = async (req, res, next) => {
 // @access  Private(public for now)
 exports.createOffer = async (req, res, next) => {
   // Connect to XRP ledger
-  const client = new xrpl.Client("wss://xrplcluster.com");
+  const client = new Client("wss://xrplcluster.com");
   console.log("Connecting to production XRPL server...");
   await client.connect();
 
@@ -31,7 +31,7 @@ exports.createOffer = async (req, res, next) => {
   };
   const weSpend = {
     currency: body.weSpend.currency,
-    value: xrpl.xrpToDrops(body.weSpend.value),
+    value: xrpToDrops(body.weSpend.value),
   };
 
   // Create offer transaction
