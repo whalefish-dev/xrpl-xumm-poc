@@ -1,5 +1,8 @@
 # XUMM-XRPL Proof of Concept
 
+[![tests](https://github.com/oxalys-dev/xrpl-xumm-poc/actions/workflows/test.yaml/badge.svg)](https://github.com/oxalys-dev/xrpl-xumm-poc/actions/workflows/test.yaml)
+[![lint](https://github.com/oxalys-dev/xrpl-xumm-poc/actions/workflows/lint.yaml/badge.svg)](https://github.com/oxalys-dev/xrpl-xumm-poc/actions/workflows/lint.yaml)
+
 This repo demonstrates a Proof of Concept application for sending offers to the XRPL Decentralised Exchange (DEX) using the XUMM app for authentication.
 
 ## Installation
