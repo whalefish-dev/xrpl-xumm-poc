@@ -3,6 +3,8 @@ const { Client, xrpToDrops } = require("xrpl");
 const env = require("dotenv");
 env.config({ path: "./.env" });
 
+const xrplURL = "wss://xrplcluster.com"
+
 //  post /api/v1/xrp/test
 exports.test = async (req, res, next) => {
   console.log("testing");
@@ -17,7 +19,7 @@ exports.test = async (req, res, next) => {
 // @access  Private(public for now)
 exports.createOffer = async (req, res, next) => {
   // Connect to XRP ledger
-  const client = new Client("wss://xrplcluster.com");
+  const client = new Client(xrplURL);
   console.log("Connecting to production XRPL server...");
   await client.connect();
 
