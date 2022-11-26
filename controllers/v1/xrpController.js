@@ -3,7 +3,7 @@ const { Client, xrpToDrops } = require("xrpl");
 const env = require("dotenv");
 env.config({ path: "./.env" });
 
-const xrplURL = "wss://xrplcluster.com"
+const xrplURL = "wss://xrplcluster.com";
 
 //  post /api/v1/xrp/test
 exports.test = async (req, res, next) => {
