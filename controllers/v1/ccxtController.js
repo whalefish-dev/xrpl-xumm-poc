@@ -5,7 +5,7 @@ env.config({ path: "./.env" });
 //  post /api/v1/ccxt/createOrder
 exports.createOrder = async (req, res, next) => {
   console.log("Creating order...");
-  const body = req.body
+  const body = req.body;
   const exchangeId = body.exchangeId;
   const ExchangeClass = ccxt[exchangeId];
   const exchange = new ExchangeClass({
@@ -18,16 +18,16 @@ exports.createOrder = async (req, res, next) => {
     body.side,
     body.quantity,
     body.price,
-    { "icebergQty": body.icebergQty }
+    { icebergQty: body.icebergQty }
   );
 
   if (order) {
     res.status(200).json({
-        success: true,
+      success: true,
     });
   } else {
     res.status(400).json({
-        success: false,
+      success: false,
     });
   }
 };
