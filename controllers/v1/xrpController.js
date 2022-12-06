@@ -1,6 +1,7 @@
 const { XummSdk } = require("xumm-sdk"); // xumm sdk input
 const { Client, xrpToDrops } = require("xrpl");
 const env = require("dotenv");
+const { GateHubIssuers, BitStampIssuers } = require("../../utils/utilities");
 env.config({ path: "./.env" });
 
 const xrplURL = "wss://xrplcluster.com";
@@ -24,20 +25,25 @@ exports.createOffer = async (req, res, next) => {
   await client.connect();
 
   // Parse request body
-
   const body = req.body;
+
+  const issuer =
+    body.weWant.issuer === "bitstamp"
+      ? BitStampIssuers[body.weWant.currency]
+      : GateHubIssuers[body.weWant.currency];
+
   const weWant = {
     currency: body.weWant.currency,
-    issuer: body.address,
+    issuer,
     value: body.weWant.value,
   };
+
   const weSpend = {
     currency: body.weSpend.currency,
     value: xrpToDrops(body.weSpend.value),
   };
 
   // Create offer transaction
-
   const offer = {
     TransactionType: "OfferCreate",
     Account: body.address,
@@ -48,11 +54,10 @@ exports.createOffer = async (req, res, next) => {
   console.log("Prepared transaction:", JSON.stringify(prepared, null, 2));
 
   // Send the offerCreate transaction to be signed and sent to the ledged
-
   const sdk = new XummSdk(process.env.API_KEY, process.env.API_SECRET);
   const request = {
-    txjson: prepared,
     user_token: body.userToken,
+    txjson: prepared,
   };
   console.log("Sending OfferCreate transaction...");
 
@@ -66,10 +71,9 @@ exports.createOffer = async (req, res, next) => {
   );
 
   // Get response regarding the transaction
-
   const resolveData = await subscription.resolved;
   const result = await sdk.payload.get(resolveData.payload_uuidv4);
-
+  console.log(result);
   if (result.response.dispatched_result === "tesSUCCESS") {
     console.log("Transaction succeeded");
   } else {
