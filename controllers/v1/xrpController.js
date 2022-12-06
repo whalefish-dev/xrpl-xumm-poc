@@ -1,7 +1,7 @@
 const { XummSdk } = require("xumm-sdk"); // xumm sdk input
 const xrpl = require("xrpl");
 const env = require("dotenv");
-const { Issuers } = require("../../utils/utilities");
+const { GateHubIssuers, BitStampIssuers } = require("../../utils/utilities");
 env.config({ path: "./.env" });
 
 //  post /api/v1/xrp/test
@@ -24,9 +24,15 @@ exports.createOffer = async (req, res, next) => {
 
   // Parse request body
   const body = req.body;
+
+  const issuer =
+    body.weWant.issuer === "bitstamp"
+      ? BitStampIssuers[body.weWant.currency]
+      : GateHubIssuers[body.weWant.currency];
+
   const weWant = {
     currency: body.weWant.currency,
-    issuer: Issuers[body.weWant.currency],
+    issuer,
     value: body.weWant.value,
   };
 
