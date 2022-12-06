@@ -1,6 +1,7 @@
 const { XummSdk } = require("xumm-sdk"); // xumm sdk input
 const xrpl = require("xrpl");
 const env = require("dotenv");
+const { Issuers } = require("../../utils/utilities");
 env.config({ path: "./.env" });
 
 //  post /api/v1/xrp/test
@@ -25,16 +26,16 @@ exports.createOffer = async (req, res, next) => {
   const body = req.body;
   const weWant = {
     currency: body.weWant.currency,
-    issuer: body.weWant.issuer,
+    issuer: Issuers[body.weWant.currency],
     value: body.weWant.value,
   };
+
   const weSpend = {
     currency: body.weSpend.currency,
     value: xrpl.xrpToDrops(body.weSpend.value),
   };
 
   // Create offer transaction
-
   const offer = {
     TransactionType: "OfferCreate",
     Account: body.address,
